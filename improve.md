@@ -1,0 +1,4 @@
+- semua date input menggunakan date picker library, buat sharable component dan terapkan ke semua date input, tema harus tetap sesuai dengan tema web saat ini
+- tambahkan fitur nama kebun, jadi ditampilan kalender publik bukan nama petani tapi nama kebun nya
+- progress log dibuat sistem sosial media, akan ditampilkan di detail kalender jadi user (yang sudah login) bisa like dan coment ke setiap progress log yang di posting
+- buat halaman kebun yang bisa diakses publik, disitu ditampilkan tanaman yang ditanam di kebun tersebut, deskripsi kebun, foto kebun, link media sosial kebun dan link kontak kebun, dan ketika di klik akan masuk ke threads progress log nya

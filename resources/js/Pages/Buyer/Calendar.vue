@@ -77,9 +77,9 @@ const calendarOptions = ref({
 
 const statusLabels = { growing: 'Tumbuh', 'pre-order': 'Pre-Order', ready: 'Siap Panen' };
 const statusClasses = { 
-    growing: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/50', 
-    'pre-order': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50', 
-    ready: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800/50' 
+    growing: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
+    'pre-order': 'bg-amber-50 text-amber-700 border-amber-200', 
+    ready: 'bg-orange-50 text-orange-700 border-orange-200' 
 };
 
 function formatDate(d) { 
@@ -107,16 +107,16 @@ function goToDate(dateStr) {
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <CalendarDays class="w-6 h-6 text-emerald-600 dark:text-emerald-500" /> Kalender Panen
+                <CalendarDays class="w-6 h-6 text-emerald-600" /> Kalender Panen
             </h2>
         </template>
         <div class="py-8">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Legend -->
                 <div class="flex flex-wrap gap-6 mb-6 px-2">
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tumbuh</span></div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="text-sm font-medium text-gray-600 dark:text-gray-400">Pre-Order</span></div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-sm font-medium text-gray-600 dark:text-gray-400">Siap Panen</span></div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="text-sm font-medium text-gray-600">Tumbuh</span></div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="text-sm font-medium text-gray-600">Pre-Order</span></div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500"></span><span class="text-sm font-medium text-gray-600">Siap Panen</span></div>
                 </div>
 
                 <!-- Calendar -->
@@ -135,7 +135,7 @@ function goToDate(dateStr) {
                             class="glass-card p-5 cursor-pointer hover:-translate-y-1 transition-transform border border-transparent hover:border-emerald-500/30"
                         >
                             <div class="flex items-center gap-4">
-                                <span class="text-3xl bg-gray-50 dark:bg-[#1a241f] w-14 h-14 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-white/5">{{ planting.crop?.icon || '🌱' }}</span>
+                                <span class="text-3xl bg-gray-50 dark:bg-white/5 w-14 h-14 rounded-2xl flex items-center justify-center border border-gray-100 dark:border-white/5">{{ planting.crop?.icon || '🌱' }}</span>
                                 <div>
                                     <h4 class="font-bold text-gray-900 dark:text-white text-lg">{{ planting.crop?.name }}</h4>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
@@ -144,16 +144,16 @@ function goToDate(dateStr) {
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-sm">
-                                <span class="text-amber-600 dark:text-amber-500 font-medium flex items-center gap-1.5">
+                                <span class="text-amber-600 font-medium flex items-center gap-1.5">
                                     <CalendarDays class="w-4 h-4" /> {{ formatDate(planting.estimated_harvest_at) }}
                                 </span>
                                 <span class="px-2.5 py-1 text-xs font-semibold rounded-md border" :class="statusClasses[planting.status]">{{ statusLabels[planting.status] }}</span>
                             </div>
                         </div>
                     </div>
-                    <div v-else class="text-center py-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
-                        <Sprout class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p class="text-gray-500 text-sm">Belum ada data penanaman yang aktif.</p>
+                    <div v-else class="text-center py-12 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl">
+                        <Sprout class="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada data penanaman yang aktif.</p>
                     </div>
                 </div>
 
@@ -166,23 +166,23 @@ function goToDate(dateStr) {
                         @mouseenter="cancelHideTooltip"
                         @mouseleave="hideTooltipNow"
                     >
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-xl min-w-[260px]">
-                            <div class="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                                <span class="text-2xl bg-gray-50 dark:bg-gray-900 w-10 h-10 rounded-full flex items-center justify-center">{{ tooltip.data.crop_icon || '🌱' }}</span>
+                        <div class="bg-white dark:bg-[#131b17] border border-gray-200 dark:border-white/10 rounded-xl p-4 shadow-xl min-w-[260px]">
+                            <div class="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100 dark:border-white/5">
+                                <span class="text-2xl bg-gray-50 dark:bg-white/5 w-10 h-10 rounded-full flex items-center justify-center">{{ tooltip.data.crop_icon || '🌱' }}</span>
                                 <span class="font-bold text-gray-900 dark:text-white">{{ tooltip.data.crop_name }}</span>
                             </div>
                             <div class="space-y-2 text-sm">
-                                <div class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                <div class="text-gray-600 flex items-center gap-2">
                                     <Sprout class="w-4 h-4" /> 
                                     <span v-if="!tooltip.data.garden">{{ tooltip.data.farmer_name }}</span>
-                                    <Link v-else :href="route('garden.show', tooltip.data.garden.id)" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+                                    <Link v-else :href="route('garden.show', tooltip.data.garden.id)" class="text-emerald-600 hover:underline font-medium">
                                         {{ tooltip.data.farmer_name }}
                                     </Link>
                                 </div>
-                                <div class="text-gray-500 dark:text-gray-500">📅 Tanam: {{ tooltip.data.planted_at }}</div>
-                                <div class="text-amber-600 dark:text-amber-500 font-medium">🌾 Panen: {{ tooltip.data.estimated_harvest_at }}</div>
-                                <div v-if="tooltip.data.area_hectares" class="text-gray-500 dark:text-gray-500">📐 {{ tooltip.data.area_hectares }} Ha</div>
-                                <div class="text-gray-500 dark:text-gray-500">🌿 HST: {{ tooltip.data.hst }} hari</div>
+                                <div class="text-gray-500 dark:text-gray-400">📅 Tanam: {{ tooltip.data.planted_at }}</div>
+                                <div class="text-amber-600 font-medium">🌾 Panen: {{ tooltip.data.estimated_harvest_at }}</div>
+                                <div v-if="tooltip.data.area_hectares" class="text-gray-500 dark:text-gray-400">📐 {{ tooltip.data.area_hectares }} Ha</div>
+                                <div class="text-gray-500 dark:text-gray-400">🌿 HST: {{ tooltip.data.hst }} hari</div>
                             </div>
                             <div v-if="tooltip.data.farmer_phone" class="mt-4">
                                 <button

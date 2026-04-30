@@ -17,7 +17,7 @@ function openWhatsApp(phone) { if(!phone) return; window.open(`https://wa.me/${p
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center gap-4">
-                <Link :href="route('calendar')" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5">
+                <Link :href="route('calendar')" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 dark:bg-white/10 dark:hover:bg-white/10 dark:bg-white/10">
                     <ArrowLeft class="w-5 h-5" />
                 </Link>
                 <div class="flex items-center gap-2">
@@ -30,13 +30,13 @@ function openWhatsApp(phone) { if(!phone) return; window.open(`https://wa.me/${p
             <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-6">
                 <div class="glass-card p-6 sm:p-8 animate-fade-in border-t-4 border-t-amber-500">
                     <div class="flex items-center gap-5 mb-8">
-                        <div class="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-3xl">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-3xl">
                             {{ planting.crop?.icon || '🌱' }}
                         </div>
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                 {{ planting.crop?.name }} 
-                                <span v-if="planting.crop?.variety" class="text-gray-500 text-base font-normal">({{ planting.crop.variety }})</span>
+                                <span v-if="planting.crop?.variety" class="text-gray-500 dark:text-gray-400 text-base font-normal">({{ planting.crop.variety }})</span>
                             </h3>
                             <div class="mt-2">
                                 <span class="inline-block px-3 py-1 text-sm font-semibold rounded-md border" :class="statusClasses[planting.status]">{{ statusLabels[planting.status] }}</span>
@@ -45,25 +45,25 @@ function openWhatsApp(phone) { if(!phone) return; window.open(`https://wa.me/${p
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="bg-gray-50 dark:bg-[#1a241f] rounded-xl p-4 border border-gray-100 dark:border-white/5">
+                        <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-gray-100 dark:border-white/5">
                             <div class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                                 <CalendarDays class="w-4 h-4" /> Tanggal Tanam
                             </div>
                             <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatDate(planting.planted_at) }}</div>
                         </div>
-                        <div class="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-4 border border-amber-100 dark:border-amber-900/30">
-                            <div class="flex items-center gap-2 text-xs font-medium text-amber-600 dark:text-amber-500 mb-1">
+                        <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                            <div class="flex items-center gap-2 text-xs font-medium text-amber-600 mb-1">
                                 <CalendarDays class="w-4 h-4" /> Est. Panen
                             </div>
                             <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatDate(planting.estimated_harvest_at) }}</div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-[#1a241f] rounded-xl p-4 border border-gray-100 dark:border-white/5">
+                        <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-gray-100 dark:border-white/5">
                             <div class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                                 <Hash class="w-4 h-4" /> Luas Lahan
                             </div>
                             <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ planting.area_hectares ? `${planting.area_hectares} Ha` : '-' }}</div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-[#1a241f] rounded-xl p-4 border border-gray-100 dark:border-white/5">
+                        <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-gray-100 dark:border-white/5">
                             <div class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                                 <User class="w-4 h-4" /> Petani
                             </div>
@@ -71,11 +71,11 @@ function openWhatsApp(phone) { if(!phone) return; window.open(`https://wa.me/${p
                         </div>
                     </div>
                     
-                    <div v-if="planting.user?.address" class="p-4 bg-gray-50 dark:bg-[#1a241f] rounded-xl border border-gray-100 dark:border-white/5 mb-8">
+                    <div v-if="planting.user?.address" class="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5 mb-8">
                         <div class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
                             <MapPin class="w-4 h-4" /> Lokasi
                         </div>
-                        <div class="text-sm text-gray-700 dark:text-gray-300">{{ planting.user.address }}</div>
+                        <div class="text-sm text-gray-700">{{ planting.user.address }}</div>
                     </div>
                     
                     <button v-if="planting.user?.phone" @click="openWhatsApp(planting.user.phone)" class="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2">

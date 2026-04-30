@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput.vue';
 import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 
@@ -36,6 +36,7 @@ const form = useForm({
         facebook_link: props.garden?.facebook_link || '',
         youtube_link: props.garden?.youtube_link || '',
         whatsapp_number: props.garden?.whatsapp_number || '',
+        bmkg_adm4_code: props.garden?.bmkg_adm4_code || '',
     },
     garden_photo: null,
     garden_cover: null,
@@ -117,16 +118,85 @@ const submit = () => {
         },
     });
 };
+
+// Wilayah.id integration
+const provinces = ref([]);
+const regencies = ref([]);
+const districts = ref([]);
+const villages = ref([]);
+
+const selectedProvince = ref('');
+const selectedRegency = ref('');
+const selectedDistrict = ref('');
+const isLoadingWilayah = ref(false);
+
+const fetchWilayah = async (url, targetRef) => {
+    isLoadingWilayah.value = true;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        targetRef.value = data.data || [];
+    } catch (e) {
+        console.error('Failed fetching wilayah', e);
+    } finally {
+        isLoadingWilayah.value = false;
+    }
+};
+
+onMounted(async () => {
+    if (user.role === 'farmer') {
+        await fetchWilayah('/api/wilayah/provinces', provinces);
+        
+        // Pre-fill if code exists
+        if (form.garden.bmkg_adm4_code) {
+            const parts = form.garden.bmkg_adm4_code.split('.');
+            if (parts.length === 4) {
+                selectedProvince.value = parts[0];
+                await fetchWilayah(`/api/wilayah/regencies/${selectedProvince.value}`, regencies);
+                
+                selectedRegency.value = `${parts[0]}.${parts[1]}`;
+                await fetchWilayah(`/api/wilayah/districts/${selectedRegency.value}`, districts);
+                
+                selectedDistrict.value = `${parts[0]}.${parts[1]}.${parts[2]}`;
+                await fetchWilayah(`/api/wilayah/villages/${selectedDistrict.value}`, villages);
+            }
+        }
+    }
+});
+
+watch(selectedProvince, async (newVal) => {
+    regencies.value = [];
+    districts.value = [];
+    villages.value = [];
+    selectedRegency.value = '';
+    selectedDistrict.value = '';
+    form.garden.bmkg_adm4_code = '';
+    if (newVal) await fetchWilayah(`/api/wilayah/regencies/${newVal}`, regencies);
+});
+
+watch(selectedRegency, async (newVal) => {
+    districts.value = [];
+    villages.value = [];
+    selectedDistrict.value = '';
+    form.garden.bmkg_adm4_code = '';
+    if (newVal) await fetchWilayah(`/api/wilayah/districts/${newVal}`, districts);
+});
+
+watch(selectedDistrict, async (newVal) => {
+    villages.value = [];
+    form.garden.bmkg_adm4_code = '';
+    if (newVal) await fetchWilayah(`/api/wilayah/villages/${newVal}`, villages);
+});
 </script>
 
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-white">
                 Profile Information
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-600">
                 Update your account's profile information and email address.
             </p>
         </header>
@@ -167,12 +237,12 @@ const submit = () => {
             </div>
 
             <!-- Garden Info (Only for farmers) -->
-            <div v-if="user.role === 'farmer'" class="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-6">
+            <div v-if="user.role === 'farmer'" class="pt-6 border-t border-gray-200 dark:border-white/10 space-y-6">
                 <header>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                         Informasi Kebun
                     </h3>
-                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p class="mt-1 text-sm text-gray-600">
                         Informasi ini akan ditampilkan ke publik (misal: di Kalender Panen).
                     </p>
                 </header>
@@ -193,7 +263,7 @@ const submit = () => {
                     <div>
                         <InputLabel for="garden_photo" value="Logo Kebun (Opsional)" />
                         <div class="mt-1 flex items-center gap-4">
-                            <div v-if="previewImages.photo" class="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 group">
+                            <div v-if="previewImages.photo" class="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-white/10 flex-shrink-0 group">
                                 <img :src="previewImages.photo" class="w-full h-full object-cover" />
                                 <button type="button" @click="removeImage('photo')" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -203,7 +273,7 @@ const submit = () => {
                                 id="garden_photo"
                                 type="file"
                                 @change="onFileChange($event, 'photo')"
-                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900/30 dark:file:text-emerald-400"
+                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                                 accept="image/*"
                             />
                         </div>
@@ -213,7 +283,7 @@ const submit = () => {
                     <div>
                         <InputLabel for="garden_cover" value="Cover Kebun (Opsional)" />
                         <div class="mt-1 flex items-center gap-4">
-                            <div v-if="previewImages.cover" class="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 group">
+                            <div v-if="previewImages.cover" class="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-white/10 flex-shrink-0 group">
                                 <img :src="previewImages.cover" class="w-full h-full object-cover" />
                                 <button type="button" @click="removeImage('cover')" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -223,7 +293,7 @@ const submit = () => {
                                 id="garden_cover"
                                 type="file"
                                 @change="onFileChange($event, 'cover')"
-                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900/30 dark:file:text-emerald-400"
+                                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                                 accept="image/*"
                             />
                         </div>
@@ -235,7 +305,7 @@ const submit = () => {
                     <InputLabel for="garden_address" value="Alamat Kebun" />
                     <textarea
                         id="garden_address"
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         v-model="form.garden.address"
                         rows="2"
                         placeholder="Misal: Jl. Pertanian No. 123, Desa Makmur, Kec. Subur"
@@ -247,12 +317,48 @@ const submit = () => {
                     <InputLabel for="garden_description" value="Deskripsi Singkat" />
                     <textarea
                         id="garden_description"
-                        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                         v-model="form.garden.description"
                         rows="3"
                         placeholder="Ceritakan sedikit tentang kebun Anda..."
                     ></textarea>
                     <InputError class="mt-2" :message="form.errors['garden.description']" />
+                </div>
+
+                <div class="pt-2 border-t border-gray-100 dark:border-white/5">
+                    <InputLabel value="Lokasi Kebun (Untuk Fitur Cuaca BMKG)" />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                        Pilih lokasi dari tingkat Provinsi hingga Desa/Kelurahan untuk mengaktifkan fitur prakiraan cuaca otomatis di dashboard.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <select v-model="selectedProvince" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                <option value="">-- Pilih Provinsi --</option>
+                                <option v-for="prov in provinces" :key="prov.code" :value="prov.code">{{ prov.name }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select v-model="selectedRegency" :disabled="!regencies.length" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm disabled:opacity-50">
+                                <option value="">-- Pilih Kabupaten/Kota --</option>
+                                <option v-for="reg in regencies" :key="reg.code" :value="reg.code">{{ reg.name }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select v-model="selectedDistrict" :disabled="!districts.length" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm disabled:opacity-50">
+                                <option value="">-- Pilih Kecamatan --</option>
+                                <option v-for="dist in districts" :key="dist.code" :value="dist.code">{{ dist.name }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select v-model="form.garden.bmkg_adm4_code" :disabled="!villages.length" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm disabled:opacity-50">
+                                <option value="">-- Pilih Desa/Kelurahan --</option>
+                                <option v-for="vil in villages" :key="vil.code" :value="vil.code">{{ vil.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <InputError class="mt-2" :message="form.errors['garden.bmkg_adm4_code']" />
+                    <div v-if="isLoadingWilayah" class="mt-2 text-xs text-indigo-500 animate-pulse">Memuat data wilayah...</div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -310,7 +416,7 @@ const submit = () => {
                         :href="route('verification.send')"
                         method="post"
                         as="button"
-                        class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                        class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Click here to re-send the verification email.
                     </Link>
@@ -318,7 +424,7 @@ const submit = () => {
 
                 <div
                     v-show="status === 'verification-link-sent'"
-                    class="mt-2 text-sm font-medium text-green-600 dark:text-green-400"
+                    class="mt-2 text-sm font-medium text-green-600"
                 >
                     A new verification link has been sent to your email address.
                 </div>
@@ -335,7 +441,7 @@ const submit = () => {
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600 dark:text-gray-400"
+                        class="text-sm text-gray-600"
                     >
                         Saved.
                     </p>
@@ -346,10 +452,10 @@ const submit = () => {
 
     <Modal :show="cropperState.show" @close="cancelCrop">
         <div class="p-6">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 Sesuaikan {{ cropperState.type === 'photo' ? 'Logo' : 'Cover' }}
             </h2>
-            <div class="w-full h-64 sm:h-96 bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
+            <div class="w-full h-64 sm:h-96 bg-gray-100 dark:bg-white/10 rounded-lg overflow-hidden">
                 <cropper
                     v-if="cropperState.show"
                     ref="cropperRef"

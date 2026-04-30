@@ -82,12 +82,28 @@ class PlantingController extends Controller
         Gate::authorize('view', $planting);
 
         $planting->load(['crop', 'progressLogs']);
+        
+        $recentActivities = $planting->activityLogs()
+            ->latest('activity_date')
+            ->latest('id')
+            ->limit(3)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'type_label' => $activity->type_label,
+                    'type_icon' => $activity->type_icon,
+                    'activity_date' => $activity->activity_date->format('Y-m-d'),
+                    'note' => $activity->note,
+                ];
+            });
 
         // Refresh status based on current date
         $this->harvestEngine->refreshStatus($planting);
 
         return Inertia::render('Farmer/Plantings/Show', [
             'planting' => $planting,
+            'recentActivities' => $recentActivities,
         ]);
     }
 
@@ -100,7 +116,7 @@ class PlantingController extends Controller
 
         $crops = Crop::orderBy('name')->get();
 
-        return Inertia::render('Farmer/Plantings/Edit', [
+        return Inertia::render('Farmer/Plantings/Create', [
             'planting' => $planting->load('crop'),
             'crops' => $crops,
         ]);

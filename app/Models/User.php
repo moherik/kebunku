@@ -47,6 +47,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all activity logs by this user.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
+     * Get all transactions by this user.
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
      * Check if the user is a farmer.
      */
     public function isFarmer(): bool

@@ -68,6 +68,50 @@ class ProgressLogController extends Controller
     }
 
     /**
+     * Show the form for editing the progress log.
+     */
+    public function edit(Planting $planting, ProgressLog $log): Response
+    {
+        Gate::authorize('update', $planting);
+
+        return Inertia::render('Farmer/ProgressLog/Create', [
+            'planting' => $planting->load('crop'),
+            'log' => $log,
+        ]);
+    }
+
+    /**
+     * Update the specified progress log.
+     */
+    public function update(Request $request, Planting $planting, ProgressLog $log)
+    {
+        Gate::authorize('update', $planting);
+
+        $validated = $request->validate([
+            'note' => 'nullable|string|max:2000',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo
+            if ($log->photo_path) {
+                Storage::disk('public')->delete($log->photo_path);
+            }
+            $log->photo_path = $request->file('photo')->store(
+                'progress-logs/' . $planting->id,
+                'public'
+            );
+        }
+
+        $log->note = $validated['note'];
+        $log->save();
+
+        return redirect()
+            ->route('farmer.plantings.show', $planting)
+            ->with('success', 'Catatan perkembangan berhasil diperbarui!');
+    }
+
+    /**
      * Remove the specified progress log.
      */
     public function destroy(Planting $planting, ProgressLog $log)

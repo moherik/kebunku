@@ -5,14 +5,14 @@ import { Sprout } from 'lucide-vue-next';
 
 <template>
     <div
-        class="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-[#0b110e] pt-6 sm:justify-center sm:pt-0"
+        class="flex min-h-screen flex-col items-center bg-gray-50 pt-6 sm:justify-center sm:pt-0"
     >
         <div>
             <Link href="/" class="flex flex-col items-center gap-2 group">
-                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Sprout class="w-10 h-10" />
                 </div>
-                <span class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Kebunku</span>
+                <span class="text-2xl font-bold text-gray-900 tracking-tight">Kebunku</span>
             </Link>
         </div>
 

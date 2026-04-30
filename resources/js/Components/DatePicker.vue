@@ -2,7 +2,7 @@
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { id } from 'date-fns/locale';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { CalendarDays } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -20,13 +20,24 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-// Detect dark mode
-const isDark = computed(() => {
-    if (typeof window !== 'undefined') {
-        return document.documentElement.classList.contains('dark');
-    }
-    return false;
-});
+// Detect dark mode reactively
+const isDark = ref(false);
+
+if (typeof window !== 'undefined') {
+    onMounted(() => {
+        const checkDark = () => {
+            isDark.value = document.documentElement.classList.contains('dark');
+        };
+
+        const observer = new MutationObserver(checkDark);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        checkDark();
+    });
+}
 
 // Internal date state
 const internalDate = computed({
@@ -56,24 +67,10 @@ const format = (date) => {
 </script>
 
 <template>
-    <VueDatePicker
-        v-model="internalDate"
-        :locale="id"
-        :format="format"
-        :placeholder="placeholder"
-        :min-date="minDate"
-        :max-date="maxDate"
-        :required="required"
-        :disabled="disabled"
-        :uid="id"
-        :enable-time-picker="enableTimePicker"
-        :auto-apply="autoApply"
-        :text-input="textInput"
-        :dark="isDark"
-        :day-names="['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']"
-        month-name-format="long"
-        week-start="1"
-    >
+    <VueDatePicker v-model="internalDate" :locale="id" :format="format" :placeholder="placeholder" :min-date="minDate"
+        :max-date="maxDate" :required="required" :disabled="disabled" :uid="id" :enable-time-picker="enableTimePicker"
+        :auto-apply="autoApply" :text-input="textInput" :dark="isDark" teleport="body"
+        :day-names="['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']" month-name-format="long" week-start="1">
         <template #input-icon>
             <CalendarDays class="w-5 h-5 text-gray-400 ml-3" />
         </template>
@@ -89,13 +86,13 @@ const format = (date) => {
 .dp__theme_light {
     --dp-background-color: #ffffff;
     --dp-text-color: #111827;
-    --dp-hover-color: #f0fdf4;
+    --dp-hover-color: #f9fafb;
     --dp-hover-text-color: #111827;
-    --dp-hover-icon-color: #059669;
+    --dp-hover-icon-color: #10b981;
     --dp-primary-color: #10b981;
     --dp-primary-disabled-color: #6ee7b7;
     --dp-primary-text-color: #ffffff;
-    --dp-secondary-color: #d1d5db;
+    --dp-secondary-color: #9ca3af;
     --dp-border-color: #e5e7eb;
     --dp-menu-border-color: #e5e7eb;
     --dp-input-border-color: #e5e7eb;
@@ -105,12 +102,12 @@ const format = (date) => {
     --dp-scroll-bar-color: #d1d5db;
     --dp-success-color: #10b981;
     --dp-success-color-disabled: #6ee7b7;
-    --dp-icon-color: #6b7280;
+    --dp-icon-color: #9ca3af;
     --dp-danger-color: #ef4444;
     --dp-marker-color: #10b981;
     --dp-tooltip-color: #374151;
     --dp-highlight-color: rgba(16, 185, 129, 0.1);
-    --dp-input-padding: 10px 12px 10px 40px;
+    --dp-input-padding: 12px 12px 12px 40px;
 }
 
 /* Dark mode */
@@ -163,6 +160,7 @@ const format = (date) => {
 .dp__menu {
     border-radius: 1rem !important;
     overflow: hidden;
+    z-index: 99999 !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 }
 

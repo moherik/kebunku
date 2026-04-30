@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Planting extends Model
 {
@@ -67,6 +68,46 @@ class Planting extends Model
     public function progressLogs(): HasMany
     {
         return $this->hasMany(ProgressLog::class)->orderByDesc('created_at');
+    }
+
+    /**
+     * Get all activity logs for this planting.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class)->orderByDesc('activity_date');
+    }
+
+    /**
+     * Get all transactions for this planting.
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Get total expenses for this planting.
+     */
+    public function getTotalExpensesAttribute(): float
+    {
+        return (float) $this->transactions()->expenses()->sum('amount');
+    }
+
+    /**
+     * Get total income for this planting.
+     */
+    public function getTotalIncomeAttribute(): float
+    {
+        return (float) $this->transactions()->incomes()->sum('amount');
+    }
+
+    /**
+     * Get profit/loss for this planting.
+     */
+    public function getProfitLossAttribute(): float
+    {
+        return $this->total_income - $this->total_expenses;
     }
 
     /**

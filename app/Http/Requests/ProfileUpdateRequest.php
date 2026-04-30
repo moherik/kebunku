@@ -40,6 +40,7 @@ class ProfileUpdateRequest extends FormRequest
             $rules['garden_cover'] = ['nullable', 'image', 'max:5120'];
             $rules['delete_garden_photo'] = ['nullable', 'boolean'];
             $rules['delete_garden_cover'] = ['nullable', 'boolean'];
+            $rules['garden.bmkg_adm4_code'] = ['nullable', 'string', 'max:50'];
         }
 
         return $rules;

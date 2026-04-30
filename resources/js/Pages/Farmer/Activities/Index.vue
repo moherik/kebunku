@@ -75,44 +75,45 @@ function groupedActivities() {
                         </div>
 
                         <!-- Activities for this date -->
-                        <div class="space-y-3 pl-2">
+                        <div class="space-y-2 pl-2">
                             <div v-for="activity in items" :key="activity.id"
-                                class="glass-card p-4 sm:p-5 flex flex-col sm:flex-row gap-4 animate-slide-up group">
+                                class="glass-card p-3 flex items-center gap-4 animate-slide-up group">
                                 <!-- Photo -->
                                 <div v-if="activity.photo_url" class="flex-shrink-0">
                                     <img :src="activity.photo_url"
-                                        class="w-full sm:w-28 h-28 object-cover rounded-xl border border-gray-200 dark:border-white/10" />
+                                        class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-100 dark:border-white/5 shadow-sm" />
+                                </div>
+                                <div v-else class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center flex-shrink-0 border border-gray-100 dark:border-white/5">
+                                    <span class="text-xl">{{ activity.type_icon }}</span>
                                 </div>
 
                                 <!-- Content -->
                                 <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div class="flex items-center gap-2.5">
-                                            <span class="text-xl">{{ activity.type_icon }}</span>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                                             <span class="font-bold text-gray-900 dark:text-white text-sm">
                                                 {{ activity.type_label }}
                                             </span>
+                                            <div v-if="activity.formatted_quantity"
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md text-[10px] font-bold border border-emerald-100 dark:border-emerald-800/30">
+                                                {{ activity.formatted_quantity }}
+                                            </div>
                                         </div>
+                                        
                                         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                                             <Link :href="route('farmer.plantings.activities.edit', [planting.id, activity.id])"
                                                 class="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
-                                                <Pencil class="w-4 h-4" />
+                                                <Pencil class="w-3.5 h-3.5" />
                                             </Link>
                                             <button @click="deleteActivity(activity.id)"
                                                 class="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-                                                <Trash2 class="w-4 h-4" />
+                                                <Trash2 class="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </div>
 
-                                    <!-- Quantity -->
-                                    <div v-if="activity.formatted_quantity"
-                                        class="mt-2 inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 rounded-lg text-xs font-medium">
-                                        {{ activity.formatted_quantity }}
-                                    </div>
-
                                     <!-- Note -->
-                                    <p v-if="activity.note" class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    <p v-if="activity.note" class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate max-w-2xl">
                                         {{ activity.note }}
                                     </p>
                                 </div>
